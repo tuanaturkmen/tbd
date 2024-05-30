@@ -1,3 +1,7 @@
+# Copyright © 2024 Tüm Hakları Saklıdır.
+# Developer: Onur KÖSE
+# Nick Name: MrRadar
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
