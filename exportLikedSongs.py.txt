@@ -1,0 +1,34 @@
+import os
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+import csv
+import re
+
+# Set up your credentials from environment variables
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+    client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+    client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+    redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
+    scope="user-library-read"
+))
+
+# Function to get liked songs
+def get_liked_songs():
+    results = sp.current_user_saved_tracks()
+    tracks = results['items']
+    while results['next']:
+        results = sp.next(results)
+        tracks.extend(results['items'])
+    return tracks
+
+liked_songs = get_liked_songs()
+
+# Write to CSV with UTF-8 encoding
+with open('liked_songs.csv', mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    writer.writerow(['Track Name', 'Artist', 'Album'])
+    for item in liked_songs:
+        track = item['track']
+        writer.writerow([track['name'], track['artists'][0]['name']])
+	#track_name = re.sub(r'^"|"$', '', track['name'])
+	#writer.writerow([track_name, track['artists'][0]['name']])

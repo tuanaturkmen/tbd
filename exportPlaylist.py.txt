@@ -1,0 +1,35 @@
+import os
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+import csv
+
+# Set up your credentials from environment variables
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+    client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+    client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+    redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
+    scope="playlist-read-private"
+))
+
+# Function to get playlist tracks
+def get_playlist_tracks(username, playlist_id):
+    results = sp.user_playlist_tracks(username, playlist_id)
+    tracks = results['items']
+    while results['next']:
+        results = sp.next(results)
+        tracks.extend(results['items'])
+    return tracks
+
+# Replace with your Spotify username and the playlist ID you want to export
+username = 'tuki789'
+playlist_id = 'your_playlist_id'
+
+tracks = get_playlist_tracks(username, playlist_id)
+
+# Write to CSV
+with open('playlist.csv', mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(['Track Name', 'Artist', 'Album'])
+    for item in tracks:
+        track = item['track']
+        writer.writerow([track['name'], track['artists'][0]['name'], track['album']['name']])
